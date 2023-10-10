@@ -4,8 +4,8 @@ import requests
 
 app = Flask(__name__, template_folder='static')
 
-def render_search_results(query=None, lang=None, country=None, num=None, display_form=True, results=None):
-    return render_template("index.html", query=query, lang=lang, country=country, num=num, display_form=display_form, results=results)
+def render_search_results(query=None, lang=None, country=None, num=None, display_form=True, results=None, userAgent=None, proxy=None):
+    return render_template("index.html", query=query, lang=lang, country=country, num=num, display_form=display_form, results=results, userAgent=userAgent, proxy=proxy)
 
 @app.route("/", methods=["GET", "POST"])
 @app.route("/search", methods=["GET", "POST"])
@@ -15,20 +15,24 @@ def search():
         lang = request.form.get("lang")
         country = request.form.get("country")
         num = int(request.form.get("num"))
+        user_agent = request.form.get("userAgent")
+        proxy = request.form.get("proxy")
     else:
         query = request.args.get("query")
         lang = request.args.get("lang")
         country = request.args.get("country")
         num = int(request.args.get("num"))
+        user_agent = request.args.get("userAgent")
+        proxy = request.args.get("proxy")
 
     results = None
 
     if query:
-        results = google_search(query, lang, country, num)
+        results = google_search(query, lang, country, num, user_agent, proxy)
 
-    return render_search_results(query, lang, country, num, results=results)
+    return render_search_results(query, lang, country, num, results=results, userAgent=user_agent, proxy=proxy)
 
-def google_search(query, lang, country, num):
+def google_search(query, lang, country, num, user_agent, proxy):
     params = {
         "q": query,
         "hl": lang,
@@ -38,8 +42,17 @@ def google_search(query, lang, country, num):
     }
 
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36"
+        "User-Agent": user_agent if user_agent else "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36"
     }
+    # The proxy feature hasnt been properly tested yet
+    if proxy:
+        proxies = {
+            "http": "http://" + proxy,
+            "https": "https://" + proxy
+        }
+    else:
+        proxies = None
+
 
     page_limit = 10
     page_num = 0
@@ -50,7 +63,13 @@ def google_search(query, lang, country, num):
         page_num += 1
         print(f"Page: {page_num}\n")
 
-        html = requests.get("https://www.google.com/search", params=params, headers=headers, timeout=30)
+        try:
+            html = requests.get("https://www.google.com/search", params=params, headers=headers, proxies=proxies, timeout=30)
+            html.raise_for_status()
+        except requests.exceptions.RequestException as e:
+            print(f"Error: {e}")
+            break
+
         soup = BeautifulSoup(html.text, 'lxml')
 
         for result in soup.select(".tF2Cxc"):
