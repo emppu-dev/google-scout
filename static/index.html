@@ -31,6 +31,19 @@
                 <label for="num" class="form-label">Number of results:</label>
                 <input type="number" name="num" class="form-control" value="{{ num }}" required>
             </div>
+
+            <button type="button" class="btn btn-link" id="showAdvancedOptions">Advanced Options</button>
+            <div id="advancedOptions" style="display: none;">
+                <div class="mb-3">
+                    <label for="userAgent" class="form-label">Custom User Agent:</label>
+                    <input type="text" name="userAgent" class="form-control" value="{{ userAgent }}">
+                </div>
+                <div class="mb-3">
+                    <label for="proxy" class="form-label">Proxy:</label>
+                    <input type="text" name="proxy" class="form-control" value="{{ proxy }}">
+                </div>
+            </div><br>
+            
             <button type="submit" class="btn btn-primary">Search</button>
         </form>
         
@@ -53,25 +66,36 @@
     </div>
 
     <script>
-        document.getElementById('searchForm').addEventListener('submit', function(event) {
+        function toggleAdvancedOptions() {
+            const advancedOptions = document.getElementById('advancedOptions');
+            if (advancedOptions.style.display === 'none' || advancedOptions.style.display === '') {
+                advancedOptions.style.display = 'block';
+            } else {
+                advancedOptions.style.display = 'none';
+            }
+        }
+        document.getElementById('showAdvancedOptions').addEventListener('click', toggleAdvancedOptions);
+        document.getElementById('searchForm').addEventListener('submit', function (event) {
             event.preventDefault();
             const formData = new FormData(this);
             const queryString = new URLSearchParams(formData).toString();
             const url = `/search?${queryString}`;
             fetch(url)
-            .then(response => response.text())
-            .then(html => {
-                document.getElementById('results').innerHTML = html;
-            })
-            .finally(() => {
-                const existingForm = document.getElementById('searchForm');
-                if (existingForm) {
-                    existingForm.remove();
-                }
-            });
+                .then(response => response.text())
+                .then(html => {
+                    document.getElementById('results').innerHTML = html;
+                })
+                .finally(() => {
+                    const existingForm = document.getElementById('searchForm');
+                    if (existingForm) {
+                        existingForm.remove();
+                    }
+                    document.getElementById('showAdvancedOptions').addEventListener('click', toggleAdvancedOptions);
+                });
             history.pushState({}, '', url);
         });
     </script>
+    
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
 </body>
 </html>
