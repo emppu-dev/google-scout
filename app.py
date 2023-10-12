@@ -14,18 +14,23 @@ def search():
         query = request.form.get("query")
         lang = request.form.get("lang")
         country = request.form.get("country")
-        num = int(request.form.get("num"))
+        num = request.form.get("num")
         user_agent = request.form.get("userAgent")
         proxy = request.form.get("proxy")
     else:
         query = request.args.get("query")
         lang = request.args.get("lang")
         country = request.args.get("country")
-        num = int(request.args.get("num"))
+        num = request.args.get("num")
         user_agent = request.args.get("userAgent")
         proxy = request.args.get("proxy")
 
     results = None
+
+    if num is not None and num.strip():
+        num = int(num)
+    else:
+        num = None
 
     if query:
         results = google_search(query, lang, country, num, user_agent, proxy)
@@ -38,13 +43,13 @@ def google_search(query, lang, country, num, user_agent, proxy):
         "hl": lang,
         "gl": country,
         "start": 0,
-        "num": num
+        "num": num if num is not None else 10
     }
 
     headers = {
         "User-Agent": user_agent if user_agent else "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36"
     }
-    # The proxy feature hasnt been properly tested yet
+
     if proxy:
         proxies = {
             "http": "http://" + proxy,
@@ -52,7 +57,6 @@ def google_search(query, lang, country, num, user_agent, proxy):
         }
     else:
         proxies = None
-
 
     page_limit = 10
     page_num = 0
