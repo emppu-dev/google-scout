@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,56 +12,57 @@
         }
     </style>
 </head>
+
 <body>
     <div class="container mt-5">
         <form id="searchForm" method="GET" action="/search">
             <h1 class="mb-4">Google Scout</h1>
             <div class="mb-3">
                 <label for="query" class="form-label">Search query:</label>
-                <input type="text" name="query" class="form-control" value="{{ query }}" required>
+                <input type="text" name="query" class="form-control" value="{{ query or '' }}" required>
             </div>
             <div class="mb-3">
                 <label for="lang" class="form-label">Language:</label>
-                <input type="text" name="lang" class="form-control" value="{{ lang }}" required>
+                <input type="text" name="lang" class="form-control" value="{{ lang or '' }}" required>
             </div>
             <div class="mb-3">
-                <label for="country" class="form-label">Country:</label>
-                <input type="text" name="country" class="form-control" value="{{ country }}" required>
+                <label for="country" class "form-label">Country:</label>
+                <input type="text" name="country" class="form-control" value="{{ country or '' }}" required>
             </div>
             <div class="mb-3">
                 <label for="num" class="form-label">Number of results:</label>
-                <input type="number" name="num" class="form-control" value="{{ num }}" required>
+                <input type="number" name="num" class="form-control" value="{{ num or '' }}" required>
             </div>
 
             <button type="button" class="btn btn-link" id="showAdvancedOptions">Advanced Options</button>
             <div id="advancedOptions" style="display: none;">
                 <div class="mb-3">
                     <label for="userAgent" class="form-label">Custom User Agent:</label>
-                    <input type="text" name="userAgent" class="form-control" value="{{ userAgent }}">
+                    <input type="text" name="userAgent" class="form-control" value="{{ userAgent or '' }}">
                 </div>
                 <div class="mb-3">
                     <label for="proxy" class="form-label">Proxy:</label>
-                    <input type="text" name="proxy" class="form-control" value="{{ proxy }}">
+                    <input type="text" name="proxy" class="form-control" value="{{ proxy or '' }}">
                 </div>
             </div><br>
-            
+
             <button type="submit" class="btn btn-primary">Search</button>
         </form>
-        
+
         <div id="results">
             {% if results %}
-                <h2 class="mt-5">Search Results</h2>
-                <ul class="list-group">
-                    {% for result in results %}
-                        <li class="list-group-item">
-                            <h3>{{ result.title }}</h3>
-                            {% if result.snippet %}
-                                <p>{{ result.snippet }}</p>
-                            {% endif %}
-                            <a href="{{ result.link }}" target="_blank" class="btn btn-primary">Visit</a>
-                        </li>
-                    {% endfor %}
-                </ul>
+            <h2 class="mt-5">Search Results</h2>
+            <ul class="list-group">
+                {% for result in results %}
+                <li class="list-group-item">
+                    <h3>{{ result.title }}</h3>
+                    {% if result.snippet %}
+                    <p>{{ result.snippet }}</p>
+                    {% endif %}
+                    <a href="{{ result.link }}" target="_blank" class="btn btn-primary">Visit</a>
+                </li>
+                {% endfor %}
+            </ul>
             {% endif %}
         </div>
     </div>
@@ -95,7 +97,8 @@
             history.pushState({}, '', url);
         });
     </script>
-    
+
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
 </body>
+
 </html>
